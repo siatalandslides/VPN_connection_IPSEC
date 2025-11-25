@@ -1,0 +1,32 @@
+sudo ipsec stop
+
+# Obtener la IP 192.168 automáticamente
+MY_IP=$(hostname -I | grep -o '192\.168\.[0-9]\+\.[0-9]\+' | head -1)
+
+sudo tee /usr/local/etc/ipsec.conf > /dev/null << EOF
+config setup
+
+conn nombre_de_la_vpn
+    keyexchange=ikev1
+    aggressive=yes
+    ike=aes256-sha1-modp1536!
+    esp=aes256-sha1
+    left=%defaultroute
+    leftsubnet=${MY_IP}/24
+    right=Ip_del_servidor
+    rightsubnet=ip_a_la_que_te_vas_a_conectar/mascara
+    authby=secret
+    auto=add
+EOF
+
+#Secrets
+sudo tee /usr/local/etc/ipsec.secrets > /dev/null << 'EOF'
+%any ip_servidor : PSK "clave_psk"
+EOF
+
+#Permisos de lectura
+sudo chmod 600 /usr/local/etc/ipsec.secrets
+
+
+sudo ipsec start
+sudo ipsec up nombre_de_la_vpn

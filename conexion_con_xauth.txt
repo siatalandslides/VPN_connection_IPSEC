@@ -1,0 +1,38 @@
+
+# ipsec.secrets
+sudo tee /usr/local/etc/ipsec.secrets > /dev/null << 'EOF'
+190.71.241.210 : PSK "clave_psk"        # PSK para el grupo
+usuario_xauth : XAUTH "constraseña_xauth"        # Contraseña para XAuth
+EOF
+
+sudo chmod 600 /usr/local/etc/ipsec.secrets
+
+
+
+
+# ipsec.conf
+sudo tee /usr/local/etc/ipsec.conf > /dev/null << 'EOF'
+config setup
+    strictcrlpolicy=no
+    charondebug="ike 3, knl 3, cfg 3, xauth 3"
+
+conn nombre_de_la_vpn
+    keyexchange=ikev1
+    aggressive=yes
+    ike=aes128-sha256-modp2048,aes256-sha256-modp2048!
+    esp=aes128-sha256-modp2048,aes256-sha256-modp2048!
+    xauth=client
+    left=%defaultroute
+    leftid="nombre_de_la_vpn"
+    leftsourceip=%config
+    leftauth=psk
+    rightauth=psk
+    leftauth2=xauth
+    right=ip_del_dispositivo
+    rightsubnet=ip_a_la_que_te_vas_a_conectar/mascara
+    xauth_identity="usuario_xauth"
+    auto=add
+EOF
+
+sudo ipsec start
+sudo ipsec up nombre_de_la_vpn
