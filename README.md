@@ -26,7 +26,7 @@ sudo make install
 StrongSwan se puede descargar desde sudo apt:
 
 ```
-sudo apt install strongswan
+sudo apt install strongswan strongswan-starter -y
 ```
 # Configuración del Módem SIM7600G-H
 
@@ -36,7 +36,7 @@ python3 activar_wan_configurar_apn.py
 ```
 # Configuración IPsec
 
-El repositorio incluye archivos de configuración que establecen la conexión IPsec. La configuración utiliza una subred específica para garantizar el correcto funcionamiento del geófono y sus canales en Raspberry Shake.
+El repositorio incluye archivos de configuración que establecen la conexión IPsec. La configuración utiliza una subred específica para garantizar el correcto funcionamiento del geófono y sus canales en Raspberry Shake. En el caso de una Raspberry convencional el también se poseen archivos de configuración con algunos cambios en la configuración que son necesarios
 
 ## Estructura de configuración
 
