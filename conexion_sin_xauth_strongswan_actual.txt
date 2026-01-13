@@ -1,0 +1,53 @@
+sudo apt install strongswan libstrongswan-extra-plugins libcharon-extra-plugins -y
+
+# Obtener tu IP actual
+MY_IP=$(hostname -I | awk '{print $1}')
+
+# Actualizar configuración con tu IP específica
+sudo tee /etc/swanctl/swanctl.conf > /dev/null << 'EOF'
+connections {
+    Nombre_conexion {
+        version = 1
+        aggressive = yes
+        local_addrs = %dynamic
+        remote_addrs = IP_remota
+        proposals = aes256-sha1-modp1536 #configuracion de la vpn
+        
+        local {
+            auth = psk
+            id = "Nombre_red"
+        }
+        
+        remote {
+            auth = psk
+            id = "IP_de_la_red"
+        }
+        
+        children {
+            Nombre_conexion {
+                local_ts = 0.0.0.0/24    # ← TU IP ESPECÍFICA
+                remote_ts = 0.0.0.0/24 #Familias de ips a las que te quieres conectar
+                esp_proposals = aes256-sha1
+                start_action = trap
+                mode = tunnel
+            }
+        }
+    }
+}
+
+secrets {
+    Nombre_red {
+        secret = "clave_psk"
+    }
+}
+EOF
+#Para activar
+# Recargar configuración
+sudo swanctl --unload-all
+sudo swanctl --load-all
+
+# Conectar
+sudo swanctl --initiate --child Nombre_conexion
+
+# Terminar la conexión actual
+sudo swanctl --terminate --child Nombre_conexion
